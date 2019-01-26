@@ -34,7 +34,7 @@ class Ibus {
     static const unsigned int IBUS_SEND_INTERVAL_MS = 100;
     static const unsigned int IBUS_PACKET_BYTES_COUNT = 32;
     static const unsigned int IBUS_CHANNELS_COUNT = 14;
-    static const unsigned int DEFAULT_CONTROL_VALUE = 1100;
+    static const unsigned int DEFAULT_CONTROL_VALUE = 1000;
     HardwareSerial *serial;
     unsigned long previousMillis = 0;
     unsigned long currentMillis = 0;
