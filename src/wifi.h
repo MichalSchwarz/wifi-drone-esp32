@@ -1,4 +1,3 @@
-
 /*
  * This file is part of the  distribution (https://github.com/wifi-drone-esp32 or http://wifi-drone-esp32.github.io).
  * Copyright (c) 2019 Michal Schwarz.
@@ -14,19 +13,33 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
+#ifndef Wifi_h
+#define Wifi_h
+
 #include "Arduino.h"
-#include "ibus.h"
-#include "wifi.h"
+#include "secret.h"
+#include "index_html.h"
+#include <WiFi.h>
+#include <ESPmDNS.h>
+#include <WiFiAP.h>
+#include <ESPAsyncWebServer.h>
 
-void setup()
-{
-  ibus.begin(Serial2);
-  wifi.begin();
-}
+class Wifi {
+  public:
+    void begin(void);
 
-void loop()
-{
-  ibus.loop();
-}
+  private:
+    static const unsigned int WEBSERVER_PORT = 80;
+    const char * WEBSOCKET_PATH = "/ws";
+    const char * MDNS_DOMAIN_NAME = "quadcopter";
+
+    void beginWebServer(AsyncWebServer * server);
+    static void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
+};
+
+extern Wifi wifi;
+
+#endif
