@@ -26,19 +26,24 @@
 
 class Ibus {
   public:
-    void begin(HardwareSerial &serial);
-    void loop(void);
-
-  private:
     static const unsigned long IBUS_BAUD_RATE = 115200;
     static const unsigned int IBUS_SEND_INTERVAL_MS = 100;
     static const unsigned int IBUS_PACKET_BYTES_COUNT = 32;
     static const unsigned int IBUS_CHANNELS_COUNT = 14;
     static const unsigned int DEFAULT_CONTROL_VALUE = 1000;
+
+    void begin(HardwareSerial &serial);
+    void loop(void);
+    void enable(void);
+    void disable(void);
+    void setControlValuesList(uint8_t list[IBUS_CHANNELS_COUNT * 2]);
+
+  private:
     HardwareSerial *serial;
     unsigned long previousMillis = 0;
     unsigned long currentMillis = 0;
-    uint16_t controlValuesList[IBUS_CHANNELS_COUNT];
+    uint8_t controlValuesList[IBUS_CHANNELS_COUNT * 2];
+    boolean isEnabled = false;
 
     void sendPacket(void);
     uint8_t * createPacket(void);

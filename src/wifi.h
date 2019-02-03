@@ -29,7 +29,7 @@
 
 class Wifi {
   public:
-    void begin(void);
+    void begin(AwsEventHandler handler);
 
   private:
     static const unsigned int WEBSERVER_PORT = 80;
@@ -37,7 +37,6 @@ class Wifi {
     const char * MDNS_DOMAIN_NAME = "quadcopter";
 
     void beginWebServer(AsyncWebServer * server);
-    static void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
 };
 
 extern Wifi wifi;

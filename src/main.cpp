@@ -17,16 +17,14 @@
  */
 
 #include "Arduino.h"
-#include "ibus.h"
-#include "wifi.h"
+#include "controller.h"
 
 void setup()
 {
-  ibus.begin(Serial2);
-  wifi.begin();
+  controller.begin();
 }
 
 void loop()
 {
-  ibus.loop();
+  controller.loop();
 }

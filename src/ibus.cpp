@@ -28,14 +28,11 @@ void Ibus::begin(HardwareSerial& serial)
 {
   this->serial = &serial;
   this->serial->begin(IBUS_BAUD_RATE);
-  for(size_t i = 0; i < IBUS_CHANNELS_COUNT; i++) {
-    this->controlValuesList[i] = DEFAULT_CONTROL_VALUE;
-  }
 }
 
 void Ibus::loop(void) {
   this->currentMillis = millis();
-  if (this->currentMillis - this->previousMillis >= IBUS_SEND_INTERVAL_MS) {
+  if (this->isEnabled && (this->currentMillis - this->previousMillis >= IBUS_SEND_INTERVAL_MS)) {
     this->sendPacket();
     this->previousMillis = this->currentMillis;
   }
@@ -47,13 +44,9 @@ uint8_t * Ibus::createPacket(void) {
   packetBytesList[0] = 0x20;
   packetBytesList[1] = 0x40;
   uint_fast16_t checksum = 0xFFFF - 0x20 - 0x40;
-  uint8_t actualPosition = 2;
-  for(size_t i = 0; i < IBUS_CHANNELS_COUNT; i++) {
-    packetBytesList[actualPosition] = lowByte(this->controlValuesList[i]);
-    checksum -= packetBytesList[actualPosition];
-    packetBytesList[actualPosition + 1] = highByte(this->controlValuesList[i]);
-    checksum -= packetBytesList[actualPosition + 1];
-    actualPosition += 2;
+  for(size_t i = 2; i < (IBUS_CHANNELS_COUNT * 2) + 2; i++) {
+    packetBytesList[i] = this->controlValuesList[i - 2];
+    checksum -= packetBytesList[i];
   }
   packetBytesList[IBUS_PACKET_BYTES_COUNT - 2] = lowByte(checksum);
   packetBytesList[IBUS_PACKET_BYTES_COUNT - 1] = highByte(checksum);
@@ -64,5 +57,19 @@ void Ibus::sendPacket() {
   uint8_t * packetBytesList = this->createPacket();
   for(size_t i = 0; i < IBUS_PACKET_BYTES_COUNT; i++) {
     this->serial->write(packetBytesList[i]);
+  }
+}
+
+void Ibus::enable() {
+  this->isEnabled = true;
+}
+
+void Ibus::disable() {
+  this->isEnabled = false;
+}
+
+void Ibus::setControlValuesList(uint8_t list[IBUS_CHANNELS_COUNT * 2]) {
+  for(size_t i = 0; i < (IBUS_CHANNELS_COUNT * 2); i++) {
+    this->controlValuesList[i] = list[i];
   }
 }

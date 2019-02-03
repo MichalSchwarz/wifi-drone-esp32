@@ -16,26 +16,29 @@
  *
  */
 
+#ifndef Controller_h
+#define Controller_h
+
 #include "Arduino.h"
+#include "ibus.h"
 #include "wifi.h"
 
-Wifi wifi;
+class Controller {
+  public:
+    static const unsigned int WIFI_CHECK_INTERVAL_MS = 500;
+    static const unsigned int WIFI_FAIL_TIMEOUT_MS = 2000;
 
-void Wifi::begin(AwsEventHandler handler)
-{
-  WiFi.softAP(WIFI_SSID, WIFI_PASSWORD);
-  static AsyncWebServer server(WEBSERVER_PORT);
-  this->beginWebServer(&server);
-  static AsyncWebSocket ws(WEBSOCKET_PATH);
-  ws.onEvent(handler);
-  server.addHandler(&ws);
-  server.begin();
-  MDNS.begin(MDNS_DOMAIN_NAME);
-}
+    static void begin(void);
+    static void loop(void);
 
-void Wifi::beginWebServer(AsyncWebServer * server)
-{
-  server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/html", INDEX_HTML);
-  });
-}
+  private:
+    unsigned long currentMillis = 0;
+    unsigned long wifiRecievedMillis = 0;
+
+    static void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
+    static void updateControlValues(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
+};
+
+extern Controller controller;
+
+#endif
