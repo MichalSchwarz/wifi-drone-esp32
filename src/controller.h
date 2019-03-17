@@ -35,7 +35,7 @@ class Controller {
     unsigned long currentMillis = 0;
     unsigned long wifiRecievedMillis = 0;
 
-    static void onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len);
+    static void onControlEvent(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
     static void updateControlValues(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
 };
 

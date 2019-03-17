@@ -21,21 +21,49 @@
 
 Wifi wifi;
 
-void Wifi::begin(AwsEventHandler handler)
+void Wifi::begin(void (*controlCallback)(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]))
 {
+  static WebServer server(WEBSERVER_PORT);
+  this->server = &server;
+  WiFi.softAPConfig(IPAddress(192, 168, 0, 1), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0));
   WiFi.softAP(WIFI_SSID, WIFI_PASSWORD);
-  static AsyncWebServer server(WEBSERVER_PORT);
-  this->beginWebServer(&server);
-  static AsyncWebSocket ws(WEBSOCKET_PATH);
-  ws.onEvent(handler);
-  server.addHandler(&ws);
-  server.begin();
-  MDNS.begin(MDNS_DOMAIN_NAME);
+  this->beginWebServer(this->server);
+  this->server->begin();
+  this->controlCallback = controlCallback;
 }
 
-void Wifi::beginWebServer(AsyncWebServer * server)
+void Wifi::loop()
 {
-  server->on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/html", INDEX_HTML);
-  });
+  this->server->handleClient();
+}
+
+void Wifi::beginWebServer(WebServer * server)
+{
+  server->on("/", onRoot);
+  server->on(CONTROL_PATH, onControl);
+}
+
+void Wifi::onRoot()
+{
+  wifi.server->send(200, "text/html", INDEX_HTML);
+}
+
+void Wifi::onControl()
+{
+  static uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2];
+  for(size_t i = 0; i < Ibus::IBUS_CHANNELS_COUNT; i++)
+  {
+    String argName = String(i);
+    int value = Ibus::DEFAULT_CONTROL_VALUE;
+    if(wifi.server->hasArg(argName)) {
+      int incommingValue = wifi.server->arg(argName).toInt();
+      if(incommingValue >= Ibus::MIN_CONTROL_VALUE && incommingValue <= Ibus::MAX_CONTROL_VALUE) {
+        value = incommingValue;
+      }
+    }
+    list[i*2] = lowByte(value);
+    list[(i*2)+1] = highByte(value);
+  }
+  wifi.controlCallback(list);
+  wifi.server->send(200, "text/plain", "");
 }

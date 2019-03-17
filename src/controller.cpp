@@ -25,7 +25,7 @@ Controller controller;
 void Controller::begin(void)
 {
   ibus.begin(Serial2);
-  wifi.begin(onWsEvent);
+  wifi.begin(onControlEvent);
 }
 
 void Controller::loop(void) {
@@ -35,6 +35,7 @@ void Controller::loop(void) {
   } else {
     ibus.enable();
   }
+  wifi.loop();
   ibus.loop();
 }
 
@@ -43,16 +44,7 @@ void Controller::updateControlValues(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]) 
   ibus.setControlValuesList(list);
 }
 
-void Controller::onWsEvent(AsyncWebSocket * server, AsyncWebSocketClient * client, AwsEventType type, void * arg, uint8_t *data, size_t len)
+void Controller::onControlEvent(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2])
 {
-  if(type == WS_EVT_DATA) {
-    AwsFrameInfo * info = (AwsFrameInfo*)arg;
-    if(info->final && info->index == 0 && info->len == len && len == (Ibus::IBUS_CHANNELS_COUNT*2)){
-      uint8_t controlValuesList[Ibus::IBUS_CHANNELS_COUNT*2];
-      for(size_t i=0; i < info->len; i++) {
-        controlValuesList[i] = data[i];
-      }
-      updateControlValues(controlValuesList);
-    }
-  }
+  updateControlValues(list);
 }

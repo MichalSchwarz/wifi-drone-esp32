@@ -31,6 +31,8 @@ class Ibus {
     static const unsigned int IBUS_PACKET_BYTES_COUNT = 32;
     static const unsigned int IBUS_CHANNELS_COUNT = 14;
     static const unsigned int DEFAULT_CONTROL_VALUE = 1000;
+    static const unsigned int MIN_CONTROL_VALUE = 1000;
+    static const unsigned int MAX_CONTROL_VALUE = 2000;
 
     void begin(HardwareSerial &serial);
     void loop(void);

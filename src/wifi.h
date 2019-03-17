@@ -21,22 +21,26 @@
 
 #include "Arduino.h"
 #include "secret.h"
+#include "ibus.h"
 #include "index_html.h"
 #include <WiFi.h>
-#include <ESPmDNS.h>
-#include <WiFiAP.h>
-#include <ESPAsyncWebServer.h>
+#include <WebServer.h>
 
 class Wifi {
   public:
-    void begin(AwsEventHandler handler);
+    void begin(void (*controlCallback)(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]));
+    void loop();
 
   private:
     static const unsigned int WEBSERVER_PORT = 80;
-    const char * WEBSOCKET_PATH = "/ws";
+    const char * CONTROL_PATH = "/control";
     const char * MDNS_DOMAIN_NAME = "quadcopter";
+    WebServer * server;
 
-    void beginWebServer(AsyncWebServer * server);
+    void beginWebServer(WebServer * server);
+    static void onRoot();
+    static void onControl();
+    void (*controlCallback)(uint8_t list[Ibus::IBUS_CHANNELS_COUNT*2]);
 };
 
 extern Wifi wifi;
