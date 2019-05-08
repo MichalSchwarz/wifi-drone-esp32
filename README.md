@@ -2,22 +2,18 @@
 
 It creates an interface between the WiFi (WebSocket) and IBus bus.
 
+## Example
+
+[![Esp32 Asgard32-F7 Drone](https://michalschwarz.github.io/rc-controller/assets/Esp32-Asgard32_F7-Drone-full-thumb.jpg)](https://michalschwarz.github.io/rc-controller/assets/Esp32-Asgard32_F7-Drone-full.jpg)
+[![Esp32 Asgard32-F7 Drone controller](https://michalschwarz.github.io/rc-controller/assets/Esp32-Asgard32_F7-Drone-controller-thumb.jpg)](https://michalschwarz.github.io/rc-controller/assets/Esp32-Asgard32_F7-Drone-controller.jpg)
+
+[How to Build a ESP32 Drone controlled by Web browser](https://michalschwarz.github.io/rc-controller/esp32/quadcopter/f450/asgard32/schema/2019/05/07/esp32-drone-v1.0.0.html)
+
 ## Features
 * 14 channels
 * Web server on port 80 serve your html file like [this one](https://github.com/MichalSchwarz/rc-controller/blob/master/dist/index_html.h) on `/` route.
-* WebSocket server running on `/ws` route is waiting on controll messages.
-  * Message is array of 28 Bytes. 14 Integers in range between 1000 and 2000. We can write it in JavaScript:
-    ```js
-    const socket = new WebSocket('ws://'+window.location.host+'/ws');
-    socket.addEventListener('open', function (event) {
-      let message = new Uint16Array(14);
-      for (let index = 0; index < message.length; index++) {
-        message[index] = 1500;
-      }
-      socket.send(message);
-    });
-    ```
-* Ibus transmission is activated by the first received WS message. If no WS message arrives within 2 seconds, Ibus will deactivate.
+* Controller is running on `/control` and waiting on control GET HTTP requests.
+* Ibus transmission is activated by the first received request. If no request arrives within 2 seconds, Ibus will deactivate.
 
 ## How to Use it
 
@@ -29,7 +25,7 @@ It creates an interface between the WiFi (WebSocket) and IBus bus.
 
 3. Add Controller header file like [this one](https://github.com/MichalSchwarz/rc-controller/blob/master/dist/index_html.h) into `src/` folder.
 
-4. Add libraries [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer) and [AsyncTCP](https://github.com/me-no-dev/AsyncTCP). More info in [this blogpost](https://techtutorialsx.com/2017/12/01/esp32-arduino-asynchronous-http-webserver/).
+4. Add ESP32 library [https://github.com/espressif/arduino-esp32](https://github.com/espressif/arduino-esp32).
 
 5. Connect IBus reciever to ESP-32, pin 27 (GPIO17, TX2).
 
